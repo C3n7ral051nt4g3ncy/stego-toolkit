@@ -25,7 +25,7 @@ class ThreadedCracker(threading.Thread):
         try:
             self.crack_function(*self.args)
         except Exception as e:
-            print("Error cracking {} - {}".format(self.args, e))
+            print(f"Error cracking {self.args} - {e}")
         finally:
             self.pool.release()
 
@@ -44,15 +44,21 @@ class ThreadedSteghideCracker(ThreadedCracker):
         (out, err) = process.communicate()
         m = re.search(r"embedded file \"(.*)\"", out)
         if m is not None:
-            print("\nFound '{}'!\n\
-Extract with `steghide extract -sf {} -p \"{}\"`"
-                  .format(m.group(1), stego_file, passphrase))
+            print(
+                (
+                    "\nFound '{}'!\n\
+Extract with `steghide extract -sf {} -p \"{}\"`".format(
+                        m[1], stego_file, passphrase
+                    )
+                )
+            )
+
             sys.exit(0)
 
 
 class ThreadedOutguessCracker(ThreadedCracker):
     def crack_function(self, stego_file, passphrase):
-        tmp_file = "/tmp/{}".format(md5.new(passphrase).hexdigest())
+        tmp_file = f"/tmp/{md5.new(passphrase).hexdigest()}"
         process = subprocess.Popen(['outguess',
                                     '-k', passphrase,
                                     '-r', stego_file,
@@ -76,7 +82,7 @@ Extract with `outguess -k \"{}\" -r {} /tmp/outguess_secret.txt`"
 
 class ThreadedOutguess013Cracker(ThreadedCracker):
     def crack_function(self, stego_file, passphrase):
-        tmp_file = "/tmp/{}".format(md5.new(passphrase).hexdigest())
+        tmp_file = f"/tmp/{md5.new(passphrase).hexdigest()}"
         process = subprocess.Popen(['outguess-0.13',
                                     '-k', passphrase,
                                     '-r', stego_file,
@@ -108,9 +114,15 @@ class ThreadedOpenstegoCracker(ThreadedCracker):
         (out, err) = process.communicate()
         m = re.search(r"Extracted file: (.*)", err)
         if m is not None:
-            print("\nFound '{}'!\n\
-Extract with `openstego extract -sf {} -p \"{}\"`"
-                  .format(m.group(1), stego_file, passphrase))
+            print(
+                (
+                    "\nFound '{}'!\n\
+Extract with `openstego extract -sf {} -p \"{}\"`".format(
+                        m[1], stego_file, passphrase
+                    )
+                )
+            )
+
             sys.exit(0)
 
 # TODO: jphide / jpseek brute forcing --- requires interactive passphrase...
@@ -161,7 +173,7 @@ def bruteforce(Cracker, stego_file, wordlist, num_threads):
 
 
 def get_num_passphrases(wordlist):
-    num_lines = sum(1 for line in wordlist)
+    num_lines = sum(1 for _ in wordlist)
     wordlist.seek(0)
     return num_lines
 
@@ -174,7 +186,6 @@ if __name__ == "__main__":
         "outguess-0.13": ThreadedOutguess013Cracker,
         "openstego": ThreadedOpenstegoCracker
     }
-    print("Cracking {} with {} - {} threads"
-          .format(args.file, args.tool, args.threads))
+    print(f"Cracking {args.file} with {args.tool} - {args.threads} threads")
     bruteforce(crackers[args.tool], args.file,
                args.wordlist, args.threads)

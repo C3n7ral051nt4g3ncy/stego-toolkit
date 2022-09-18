@@ -11,8 +11,10 @@ class BitstringAnalyser(object):
 
     def analyze(self):
         if self._is_bitstring():
-            print("\nBitstring found: length={} content='{}'"
-                  .format(len(self.bitstring), self.bitstring))
+            print(
+                f"\nBitstring found: length={len(self.bitstring)} content='{self.bitstring}'"
+            )
+
             self._try_convert_to_string()
             self._try_convert_to_integer()
 
@@ -38,12 +40,12 @@ class BitstringAnalyser(object):
     def _print_result(self, conversion_type, result):
         result = str(result)
         if len(result) > 20:
-            print(" - Conversion to {}: '{}...'".format(conversion_type, result[:20]))
+            print(f" - Conversion to {conversion_type}: '{result[:20]}...'")
         else:
-            print(" - Conversion to {}: '{}'".format(conversion_type, result))
+            print(f" - Conversion to {conversion_type}: '{result}'")
 
     def _print_fail(self, conversion_type, reason):
-        print(" - Conversion to {}: FAILED ({})".format(conversion_type, reason))
+        print(f" - Conversion to {conversion_type}: FAILED ({reason})")
 
 
     # @staticmethod
